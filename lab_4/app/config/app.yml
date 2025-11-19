@@ -1,0 +1,8 @@
+flask:
+  secret_key: "dev-secret"
+
+database:
+  url: "mysql+pymysql://root:14112006@localhost:3306/mydb?charset=utf8mb4"
+
+app:
+  debug: true
