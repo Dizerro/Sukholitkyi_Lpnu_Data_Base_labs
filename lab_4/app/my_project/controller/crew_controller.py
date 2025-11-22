@@ -20,7 +20,7 @@ def add_member():
     data = crew_schema.load(request.json)
     member = svc.add(**data)
     return crew_schema.jsonify(member), 201
-
+ 
 # Увесь екіпаж рейсу
 @bp.get("/flight/<int:flight_id>")
 def list_for_flight(flight_id):
@@ -37,3 +37,58 @@ def delete_member():
     data = crew_schema.load(request.json)
     svc.delete(**data)
     return "", 204
+
+# Літак + весь екіпаж на ньому
+@bp.get("/aircraft/<int:aircraft_id>")
+def crew_for_aircraft(aircraft_id):
+    result = svc.crew_for_aircraft(aircraft_id)
+    if not result:
+        return {"error": "Aircraft not found"}, 404
+
+    aircraft = result["aircraft"]
+    crew = result["crew"]
+
+    return {
+        "aircraft": {
+            "aircraft_id": aircraft.aircraft_id,
+            "registration_number": aircraft.registration_number,
+            "serial_number": aircraft.serial_number,
+            "airline_id": aircraft.airline_airline_id,
+            "model_id": aircraft.aircraft_models_model_id
+        },
+        "crew": [
+            {
+                "role": c.role,
+                "pilot_id": c.pilot_id,
+                "flight_id": c.flight_id
+            }
+            for c in crew
+        ]
+    }
+
+# ВСІ літаки + весь екіпаж
+@bp.get("/aircraft")
+def all_aircraft_with_crew():
+    items = svc.crew_for_all_aircraft()
+
+    return [
+        {
+            "aircraft": {
+                "aircraft_id": i["aircraft"].aircraft_id,
+                "registration_number": i["aircraft"].registration_number,
+                "serial_number": i["aircraft"].serial_number,
+                "airline_id": i["aircraft"].airline_airline_id,
+                "model_id": i["aircraft"].aircraft_models_model_id
+            },
+            "crew": [
+                {
+                    "role": c.role,
+                    "pilot_id": c.pilot_id,
+                    "flight_id": c.flight_id
+                }
+                for c in i["crew"]
+            ]
+        }
+        for i in items
+    ]
+
